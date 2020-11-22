@@ -17,6 +17,10 @@ using System.Globalization;
 using System.Collections.Generic;
 using Nethereum.WalletForwarder.Contracts.ERC20Token;
 using Nethereum.WalletForwarder.Contracts.ERC20Token.ContractDefinition;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Nethereum.Forwarder.IntegrationTests
 {
@@ -210,6 +214,84 @@ namespace Nethereum.Forwarder.IntegrationTests
             Assert.Equal((decimal)0.001 + (decimal)0.001 + balanceDestinationEther, Web3.Web3.Convert.FromWei(newbalanceDestination));
         }
 
+
+
+        [Fact]
+        public async void ShouldDeployForwarder_TransferEther_CloneItUsingFactory_FlushEtherManyClonesUsingFactory()
+        {
+            var destinationAddress = "0x6C547791C3573c2093d81b919350DB1094707011";
+            //Using ropsten infura 
+            //var web3 = _ethereumClientIntegrationFixture.GetInfuraWeb3(InfuraNetwork.Ropsten);
+            var web3 = _ethereumClientIntegrationFixture.GetWeb3();
+
+            //Getting the current Ether balance of the destination, we are going to transfer 0.001 ether
+            var balanceDestination = await web3.Eth.GetBalance.SendRequestAsync(destinationAddress);
+            var balanceDestinationEther = Web3.Web3.Convert.FromWei(balanceDestination);
+
+            //Deploying first the default forwarder (template for all clones)
+            var defaultForwarderDeploymentReceipt = await ForwarderService.DeployContractAndWaitForReceiptAsync(web3, new ForwarderDeployment());
+            var defaultForwaderContractAddress = defaultForwarderDeploymentReceipt.ContractAddress;
+            var defaultForwarderService = new ForwarderService(web3, defaultForwaderContractAddress);
+            //initialiasing with the destination address
+            await defaultForwarderService.ChangeDestinationRequestAndWaitForReceiptAsync(destinationAddress);
+            var destinationInContract = await defaultForwarderService.DestinationQueryAsync();
+            //validate the destination address has been set correctly
+            Assert.True(destinationInContract.IsTheSameAddress(destinationAddress));
+
+            //Deploying the factory
+            var factoryDeploymentReceipt = await ForwarderFactoryService.DeployContractAndWaitForReceiptAsync(web3, new ForwarderFactoryDeployment());
+            var factoryAddress = factoryDeploymentReceipt.ContractAddress;
+            var factoryService = new ForwarderFactoryService(web3, factoryDeploymentReceipt.ContractAddress);
+            var addresses = await SendEtherAndCreateClones(50, web3, factoryService, 0.001M, factoryAddress, defaultForwaderContractAddress);
+
+
+            //Flushing from the factory
+            var flushAllReceipt = await factoryService.FlushEtherRequestAndWaitForReceiptAsync(addresses);
+            //check here the cost ^^^
+            var totalEtherTransfered = 0.001M * addresses.Count;
+          
+            var newbalanceDestination = await web3.Eth.GetBalance.SendRequestAsync(destinationAddress);
+            Assert.Equal(totalEtherTransfered + balanceDestinationEther, Web3.Web3.Convert.FromWei(newbalanceDestination));
+        }
+
+        private async Task<List<string>> SendEtherAndCreateClones(int numberOfClones, Web3.Web3 web3, ForwarderFactoryService factoryService, decimal amount, string factoryAddress, string defaultForwaderContractAddress)
+        {
+
+            var numProcs = Environment.ProcessorCount;
+            var concurrencyLevel = numProcs * 2;
+            var concurrentDictionary = new ConcurrentDictionary<int, string>(concurrencyLevel, numberOfClones * 2);
+            var taskItems = new List<int>();
+            for (var i = 0; i < numberOfClones; i++)
+                taskItems.Add(i);
+
+            Parallel.ForEach(taskItems, (item, state) =>
+            {
+                var id = item.ToString();
+                var address = SendEtherAndCreateClone(web3, factoryService, amount, id, factoryAddress, defaultForwaderContractAddress).Result;
+                concurrentDictionary.TryAdd(item, address);
+            });
+
+            return concurrentDictionary.Values.ToList();
+        }
+        
+
+            private async Task<string> SendEtherAndCreateClone(Web3.Web3 web3, ForwarderFactoryService factoryService, decimal amount, string saltNumber, string factoryAddress, string defaultForwaderContractAddress)
+        {
+            //Lets create new contract to be paid
+            var salt = BigInteger.Parse(saltNumber); //salt id
+            var saltHex = new IntTypeEncoder().Encode(salt).ToHex();
+
+            //Calculate the new contract address
+            var contractCalculatedAddress = CalculateCreate2AddressMinimalProxy(factoryAddress, saltHex, defaultForwaderContractAddress);
+
+            //Let's tranfer some ether, with some extra gas to allow forwarding if the smart contract is deployed (UX problem)
+            var transferEtherReceipt = await web3.Eth.GetEtherTransferService().TransferEtherAndWaitForReceiptAsync(contractCalculatedAddress, amount, null, 4500000);
+            
+            var txnReceipt = await factoryService.CloneForwarderRequestAndWaitForReceiptAsync(defaultForwaderContractAddress, salt);
+            var clonedAdress = txnReceipt.DecodeAllEvents<ForwarderClonedEventDTO>()[0].Event.ClonedAdress;
+            Assert.True(clonedAdress.IsTheSameAddress(contractCalculatedAddress));
+            return contractCalculatedAddress;
+        }
 
         [Fact]
         public async void ShouldDeployForwarder_TransferToken_CloneItUsingFactory_FlushToken()
