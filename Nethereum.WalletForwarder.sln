@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30709.64
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.WalletForwarder", "Nethereum.WalletForwarder\Nethereum.WalletForwarder.csproj", "{DDF1D93F-DBA9-4BFA-BCDD-6A5A2B2CA214}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.WalletForwarder.Testing", "Nethereum.WalletForwarder.Testing\Nethereum.WalletForwarder.Testing.csproj", "{EA1B3499-122D-42D3-BD4C-D115DAC665B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.XUnitEthereumClients", "Nethereum.XUnitEthereumClients\Nethereum.XUnitEthereumClients.csproj", "{865F0596-9B3C-4ECB-906B-41255739E4F3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nethereum.WalletForward.Console", "Nethereum.WalletForward.Console\Nethereum.WalletForward.Console.csproj", "{EE4B530E-8E67-4E44-8CDF-30539F4D409A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDF1D93F-DBA9-4BFA-BCDD-6A5A2B2CA214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDF1D93F-DBA9-4BFA-BCDD-6A5A2B2CA214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDF1D93F-DBA9-4BFA-BCDD-6A5A2B2CA214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDF1D93F-DBA9-4BFA-BCDD-6A5A2B2CA214}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA1B3499-122D-42D3-BD4C-D115DAC665B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA1B3499-122D-42D3-BD4C-D115DAC665B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA1B3499-122D-42D3-BD4C-D115DAC665B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA1B3499-122D-42D3-BD4C-D115DAC665B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{865F0596-9B3C-4ECB-906B-41255739E4F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{865F0596-9B3C-4ECB-906B-41255739E4F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{865F0596-9B3C-4ECB-906B-41255739E4F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{865F0596-9B3C-4ECB-906B-41255739E4F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE4B530E-8E67-4E44-8CDF-30539F4D409A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE4B530E-8E67-4E44-8CDF-30539F4D409A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE4B530E-8E67-4E44-8CDF-30539F4D409A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE4B530E-8E67-4E44-8CDF-30539F4D409A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B3BFB6BB-81B9-4237-BF2B-5D1E9521AF6A}
+	EndGlobalSection
+EndGlobal
