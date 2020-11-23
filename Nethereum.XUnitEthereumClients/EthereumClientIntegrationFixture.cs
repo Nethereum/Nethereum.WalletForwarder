@@ -30,8 +30,8 @@ namespace Nethereum.XUnitEthereumClients
     public class EthereumClientIntegrationFixture : IDisposable
     {
         public const string ETHEREUM_CLIENT_COLLECTION_DEFAULT = "Ethereum client Test";
-        public static string GethClientPath { get; set; }  = @"..\..\..\..\testchain\clique";
-        public static string ParityClientPath { get; set; } = @"..\..\..\..\testchain\paritypoa";
+        public static string GethClientPath { get; set; }  = @"..\..\..\..\testchain\clique\geth.exe";
+        public static string ParityClientPath { get; set; } = @"..\..\..\..\testchain\paritypoa\parity.exe";
         public static string AccountPrivateKey { get; set; } = "0xb5b1870957d373ef0eeffecc6e4812c0fd08f554b37b233526acc331bf1544f7";
         public static string AccountAddress { get; set; } = "0x12890d2cce102216644c59daE5baed380d84830c";
         public static string ManagedAccountPassword { get; set; } = "password";
@@ -181,26 +181,26 @@ namespace Nethereum.XUnitEthereumClients
 
                 DeleteData();
 
-                var psiSetup = new ProcessStartInfo(Path.Combine(_exePath, "geth.exe"),
-                    @"--datadir=devChain init genesis_clique.json ")
+                var psiSetup = new ProcessStartInfo(_exePath,
+                    @" --datadir=devChain init genesis_clique.json ")
                 {
                     CreateNoWindow = false,
                     WindowStyle = ProcessWindowStyle.Normal,
                     UseShellExecute = true,
-                    WorkingDirectory = _exePath
+                    WorkingDirectory = Path.GetDirectoryName(_exePath)
 
                 };
 
                 Process.Start(psiSetup);
                 Thread.Sleep(3000);
 
-                var psi = new ProcessStartInfo(Path.Combine(_exePath, "geth.exe"),
+                var psi = new ProcessStartInfo(_exePath,
                     @" --nodiscover --rpc --datadir=devChain  --rpccorsdomain "" * "" --mine --rpcapi ""eth, web3, personal, net, miner, admin, debug"" --rpcaddr ""0.0.0.0"" --allow-insecure-unlock --unlock 0x12890d2cce102216644c59daE5baed380d84830c --password ""pass.txt""  --ws  --wsaddr ""0.0.0.0"" --wsapi ""eth, web3, personal, net, miner, admin, debug"" --wsorigins "" * "" --verbosity 0 console  ")
                 {
                     CreateNoWindow = false,
                     WindowStyle = ProcessWindowStyle.Normal,
                     UseShellExecute = true,
-                    WorkingDirectory = _exePath
+                    WorkingDirectory = Path.GetDirectoryName(_exePath)
 
                 };
                 _process = Process.Start(psi);
@@ -212,15 +212,15 @@ namespace Nethereum.XUnitEthereumClients
                 var dirPath = Path.GetDirectoryName(location);
                 _exePath = Path.GetFullPath(Path.Combine(dirPath, ParityClientPath));
 
-                //DeleteData();
+                DeleteData();
 
-                var psi = new ProcessStartInfo(Path.Combine(_exePath, "parity.exe"),
+                var psi = new ProcessStartInfo(_exePath,
                     @" --config node0.toml") // --logging debug")
                 {
                     CreateNoWindow = false,
                     WindowStyle = ProcessWindowStyle.Normal,
                     UseShellExecute = true,
-                    WorkingDirectory = _exePath
+                    WorkingDirectory = Path.GetDirectoryName(_exePath)
 
                 };
                 _process = Process.Start(psi);
@@ -280,7 +280,7 @@ namespace Nethereum.XUnitEthereumClients
         {
             if (EthereumClient == EthereumClient.Geth)
             {
-                var pathData = Path.Combine(_exePath, @"devChain\geth");
+                var pathData = Path.Combine(Path.GetDirectoryName(_exePath), @"devChain\geth");
 
                 if (Directory.Exists(pathData))
                 {
@@ -290,7 +290,7 @@ namespace Nethereum.XUnitEthereumClients
             }
             else if(EthereumClient == EthereumClient.Parity)
             {
-                var pathData = Path.Combine(_exePath, @"parity0\chains");
+                var pathData = Path.Combine(Path.GetDirectoryName(_exePath), @"parity0\chains");
 
                 if (Directory.Exists(pathData))
                 {
