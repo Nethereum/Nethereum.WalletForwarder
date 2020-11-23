@@ -36,10 +36,21 @@ namespace Nethereum.Forwarder.IntegrationTests
         }
 
         [Fact]
+        public void Test()
+        {
+            Assert.True(true);
+        }
+
+        [Fact]
         public async void ShouldDeployForwarder_CloneItUsingFactory_TransferEther()
         {
             var destinationAddress = "0x6C547791C3573c2093d81b919350DB1094707011";
             var web3 = _ethereumClientIntegrationFixture.GetWeb3();
+
+            //Getting the current Ether balance of the destination, we are going to transfer 0.001 ether
+            var balanceDestination = await web3.Eth.GetBalance.SendRequestAsync(destinationAddress);
+            var balanceDestinationEther = Web3.Web3.Convert.FromWei(balanceDestination);
+
             var defaultForwarderDeploymentReceipt = await ForwarderService.DeployContractAndWaitForReceiptAsync(web3, new ForwarderDeployment());
             var defaultForwaderContractAddress = defaultForwarderDeploymentReceipt.ContractAddress;
             var defaultForwarderService =  new ForwarderService(web3, defaultForwaderContractAddress);
@@ -70,7 +81,7 @@ namespace Nethereum.Forwarder.IntegrationTests
            // var forwardedDeposit = transferEtherReceipt.DecodeAllEvents<ForwarderDepositedEventDTO>()[0].Event;
 
             var balance = await web3.Eth.GetBalance.SendRequestAsync(destinationAddress);
-            Assert.Equal(10, Web3.Web3.Convert.FromWei(balance));
+            Assert.Equal(balanceDestinationEther + 10, Web3.Web3.Convert.FromWei(balance));
             var balance2 = await web3.Eth.GetBalance.SendRequestAsync(contractCalculatedAddress);
             Assert.Equal(0, balance2.Value);
 

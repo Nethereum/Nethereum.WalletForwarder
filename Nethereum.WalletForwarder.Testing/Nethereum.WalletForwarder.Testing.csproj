@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>TestingExample</Description>
     <Authors>Juan Blanco</Authors>
-    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
